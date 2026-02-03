@@ -256,4 +256,41 @@ git commit -m "chore: inicializar proyecto SLIOR
 
 ---
 
+### 0.12 Instalación de Apache Maven
+
+Maven no estaba disponible en el sistema. Se instaló manualmente:
+
+```powershell
+# Descarga desde el archivo oficial de Apache
+$mavenUrl = "https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip"
+Invoke-WebRequest -Uri $mavenUrl -OutFile "apache-maven-3.9.6-bin.zip"
+Expand-Archive -Path "apache-maven-3.9.6-bin.zip" -DestinationPath "C:\Users\User\AppData\Local\Programs"
+# Añadir al PATH
+$env:PATH = "C:\Users\User\AppData\Local\Programs\apache-maven-3.9.6\bin;$env:PATH"
+```
+
+**Versión instalada:** Apache Maven 3.9.6  
+**JDK usado:** Eclipse Adoptium JDK 21.0.8 (Java 21 es compatible con proyectos Java 17)
+
+> **Nota para el TFG:** Si Maven no está instalado en el entorno de evaluación, ejecutar el comando anterior antes de compilar el proyecto.
+
+---
+
+### 0.13 Verificación de Compilación Backend
+
+```bash
+cd backend
+mvn clean compile
+```
+
+**Resultado:**
+```
+[INFO] BUILD SUCCESS
+[INFO] Total time: 18.413 s
+```
+
+ El backend Spring Boot compila correctamente en la Fase 0 (solo la clase main, sin dependencias de negocio aún).
+
+---
+
 *Próxima fase: [FASE 1 — Autenticación y Fundamentos](../README.md#fases-de-desarrollo)*
