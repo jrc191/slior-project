@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AndroidManifest.xml - SLIOR
+    Permisos declarados:
+    - INTERNET: comunicación con backend REST
+    - ACCESS_FINE_LOCATION + ACCESS_COARSE_LOCATION: geolocalización repartidor
+    - CAMERA: escaneo de códigos de barras
+    - WRITE_EXTERNAL_STORAGE: caché de tiles del mapa OSMDroid
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permisos de Red -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Permisos de Ubicación (solicitados en tiempo de ejecución - API 23+) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Cámara (escáner ZXing) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <!-- Almacenamiento (tiles OSMDroid) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <application
+        android:name=".SliorApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Slior"
+        android:usesCleartextTraffic="true">
+        <!-- usesCleartextTraffic=true permite HTTP a localhost en desarrollo.
+             En producción: false + HTTPS -->
+
+        <!-- Pantalla de Login (pantalla inicial) -->
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Pantalla principal (lista de rutas) -->
+        <activity
+            android:name=".ui.routes.RoutesListActivity"
+            android:exported="false" />
+
+        <!-- Detalle de ruta con mapa -->
+        <activity
+            android:name=".ui.routes.RouteDetailActivity"
+            android:exported="false" />
+
+        <!-- Crear nueva ruta -->
+        <activity
+            android:name=".ui.routes.CreateRouteActivity"
+            android:exported="false" />
+
+        <!-- Escáner de códigos de barras -->
+        <activity
+            android:name=".ui.packages.BarcodeScannerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- Detalle de paquete -->
+        <activity
+            android:name=".ui.packages.PackageDetailActivity"
+            android:exported="false" />
+
+    </application>
+
+</manifest>
