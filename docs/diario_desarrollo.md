@@ -293,4 +293,65 @@ mvn clean compile
 
 ---
 
-*Próxima fase: [FASE 1 — Autenticación y Fundamentos](../README.md#fases-de-desarrollo)*
+## FASE 1: Autenticación y Fundamentos — Backend
+
+**Fecha:** 09/03/2026  
+**Duración real:** ~15 minutos (guiado por IA)  
+**Estado:**  Completada (backend)
+
+### Archivos creados (16 en total)
+
+| Archivo | Paquete | Descripción |
+|---------|---------|-------------|
+| `UserRole.java` | `model/enums` | Enum REPARTIDOR / ADMINISTRADOR |
+| `User.java` | `model` | Entidad JPA con UUID, BCrypt, borrado lógico, auditoría |
+| `UserRepository.java` | `repository` | JPA Repository con findByEmail, existsByEmail |
+| `LoginRequest.java` | `dto/auth` | Record con validaciones Jakarta |
+| `RegisterRequest.java` | `dto/auth` | Record con validaciones Jakarta |
+| `AuthResponse.java` | `dto/auth` | Record de respuesta (sin password) |
+| `JwtUtil.java` | `security` | Generar/validar/extraer claims JWT (jjwt 0.12.x) |
+| `CustomUserDetailsService.java` | `security` | Carga usuario de BD para Spring Security |
+| `JwtAuthenticationFilter.java` | `security` | Filtro HTTP que valida JWT por petición |
+| `SecurityConfig.java` | `config` | /auth/** público, resto requiere JWT. Stateless. |
+| `AuthService.java` | `service` | register (BCrypt) + login |
+| `AuthController.java` | `controller` | POST /auth/register (201), POST /auth/login (200) |
+| `EmailAlreadyExistsException.java` | `exception` | 400 Bad Request |
+| `InvalidCredentialsException.java` | `exception` | 401 Unauthorized |
+| `GlobalExceptionHandler.java` | `exception` | JSON estructurado para todos los errores |
+| `SliorBackendApplication.java` | raíz | Añadido @EnableJpaAuditing |
+
+### Decisiones técnicas
+
+**¿Por qué Java Records para los DTOs?**  
+Los Records (Java 16+) son clases inmutables con constructor, getters, equals, hashCode y toString generados automáticamente. Son ideales para DTOs porque no pueden mutar después de crearse, lo que previene bugs sutiles.
+
+**¿Por qué BCrypt para passwords?**  
+BCrypt incluye un "salt" aleatorio en cada hash, lo que hace imposible los ataques de rainbow table. El factor de coste es configurable (por defecto 10 rondas). Es el estándar recomendado por Spring Security.
+
+**¿Por qué SessionCreationPolicy.STATELESS?**  
+Al ser una API REST consumida por una app móvil, no tiene sentido mantener sesiones en servidor. Cada petición lleva el JWT en el header y el servidor no guarda estado. Esto facilita el escalado horizontal.
+
+**¿Por qué @ControllerAdvice en GlobalExceptionHandler?**  
+Centraliza el manejo de errores en un único lugar. Sin esto, cada controlador tendría que capturar sus propias excepciones, generando duplicación de código.
+
+### Verificación de compilación
+
+```bash
+mvn clean compile
+# BUILD SUCCESS — 16 archivos compilados en 3.884 s
+```
+
+> **Warning inofensivo:** `User.java uses or overrides a deprecated API`  
+> Causado por `@Where` de Hibernate (borrado lógico). Funciona correctamente,  
+> será migrado a `@SoftDelete` en versiones futuras de Hibernate 6.x.
+
+### Commit
+
+```
+feat(backend): implementar modelo de usuario y autenticacion JWT
+Hash: 3b9f887
+```
+
+---
+
+*Próxima fase: [FASE 2 — Gestión de Rutas Backend](../README.md#fases-de-desarrollo)*
