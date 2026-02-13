@@ -12,7 +12,9 @@
 ### Java 17
 
 **¿Qué es?**  
-Java es el lenguaje de programación con el que escribimos el servidor (backend). La versión 17 es una versión LTS (Long Term Support), lo que significa que tendrá soporte oficial y actualizaciones de seguridad durante muchos años.
+Java es el lenguaje de programación con el que escribimos el servidor (backend). 
+La versión 17 es una versión LTS (Long Term Support), lo que significa que tendrá 
+soporte oficial y actualizaciones de seguridad durante muchos años.
 
 **¿Por qué Java 17 y no otra versión?**  
 - Es la versión que Spring Boot 3.x exige como mínimo
@@ -42,14 +44,15 @@ Spring Boot es un framework que hace que crear servidores en Java sea muchísimo
 - Tiene soporte nativo para características modernas de Java como Records
 
 **¿Cuánto trabajo nos ahorra?**  
-Sin Spring Boot, un proyecto como SLIOR necesitaría semanas solo de configuración inicial. Con Spring Boot, el servidor básico estuvo en minutos.
+Sin Spring Boot, un proyecto como SLIOR necesitaría semanas solo de configuración inicial. Con Spring Boot, el servidor básico se hace en minutos.
 
 ---
 
 ### Spring Data JPA + Hibernate
 
 **¿Qué es?**  
-JPA (Java Persistence API) es el estándar de Java para trabajar con bases de datos relacionales usando objetos Java en lugar de SQL. Hibernate es la implementación más popular de JPA. Spring Data JPA añade una capa encima que hace que crear consultas sea trivial.
+JPA (Java Persistence API) es el estándar de Java para trabajar con bases de datos relacionales usando objetos Java en lugar de SQL. 
+Hibernate es la implementación más popular de JPA. Spring Data JPA añade una capa encima que hace que crear consultas sea trivial.
 
 **¿Qué hace en el proyecto?**  
 - Convierte nuestras clases Java (`User`, `Route`, `Stop`) en tablas de base de datos automáticamente
@@ -68,10 +71,13 @@ En desarrollo, Hibernate crea y modifica las tablas automáticamente al arrancar
 ### Spring Security + JWT
 
 **¿Qué es Spring Security?**  
-Es el módulo de Spring que gestiona quién puede acceder a qué en la aplicación. Sin él, cualquiera podría llamar a cualquier endpoint y ver o modificar datos de otros usuarios.
+Es el módulo de Spring que gestiona quién puede acceder a qué en la aplicación. 
+Sin él, cualquiera podría llamar a cualquier endpoint y ver o modificar datos de otros usuarios.
 
 **¿Qué es JWT (JSON Web Token)?**  
-Un JWT es un "ticket de acceso" digital. Cuando haces login, el servidor te genera un ticket firmado con información sobre quién eres. En cada petición posterior mandas ese ticket y el servidor lo verifica sin necesidad de consultar la base de datos.
+Un JWT es un "ticket de acceso" digital. 
+Cuando haces login, el servidor te genera un ticket firmado con información sobre quién eres. 
+En cada petición posterior mandas ese ticket y el servidor lo verifica sin necesidad de consultar la base de datos.
 
 **¿Cómo funciona en SLIOR?**  
 1. El repartidor hace login → el servidor le da un JWT (válido 30 minutos)
@@ -91,7 +97,8 @@ BCrypt es un algoritmo de hashing pensado específicamente para contraseñas. Ca
 ### PostgreSQL 15
 
 **¿Qué es?**  
-PostgreSQL es un sistema de gestión de bases de datos relacionales (como MySQL o SQLite, pero más potente). Es donde se guardan todos los datos del sistema: usuarios, rutas, paradas, paquetes.
+PostgreSQL es un sistema de gestión de bases de datos relacionales (como MySQL o SQLite, pero más potente). 
+Es donde se guardan todos los datos del sistema: usuarios, rutas, paradas, paquetes.
 
 **¿Por qué PostgreSQL y no MySQL o SQLite?**  
 - Soporte nativo para UUID como tipo de dato (perfecto para nuestros IDs)
@@ -120,7 +127,8 @@ Para el backend Java, Maven es el estándar más extendido y con más documentac
 ### Lombok
 
 **¿Qué es?**  
-Lombok es una librería que genera código repetitivo automáticamente mediante anotaciones. En Java, una clase con 5 campos normalmente necesita getters, setters, constructor, equals, hashCode y toString. Lombok lo genera todo en tiempo de compilación.
+Lombok es una librería que genera código repetitivo automáticamente mediante anotaciones. 
+En Java, una clase con 5 campos normalmente necesita getters, setters, constructor, equals, hashCode y toString. Lombok lo genera todo en tiempo de compilación.
 
 **¿Qué nos ahorra?**  
 Una entidad JPA típica sin Lombok tendría ~150 líneas. Con Lombok son ~30 líneas con las mismas funcionalidades.
@@ -140,7 +148,8 @@ Una entidad JPA típica sin Lombok tendría ~150 líneas. Con Lombok son ~30 lí
 ### Kotlin 2.0.21
 
 **¿Qué es?**  
-Kotlin es el lenguaje de programación oficial de Android (desde 2017). Es como Java pero más moderno, más conciso y con menos errores posibles (especialmente los temidos NullPointerException).
+Kotlin es el lenguaje de programación oficial de Android (desde 2017). 
+Es como Java pero más moderno, más conciso y con menos errores posibles (especialmente los temidos NullPointerException).
 
 **¿Por qué Kotlin y no Java para Android?**  
 - Google recomienda oficialmente Kotlin para Android
@@ -191,10 +200,12 @@ Divide el proyecto en capas con responsabilidades claras:
 ### Room 2.6.1
 
 **¿Qué es?**  
-Room es la librería oficial de Android para trabajar con SQLite (la base de datos local del dispositivo). Es la capa de abstracción sobre SQLite que nos evita escribir SQL.
+Room es la librería oficial de Android para trabajar con SQLite (la base de datos local del dispositivo). 
+Es la capa de abstracción sobre SQLite que nos evita escribir SQL.
 
 **¿Para qué lo usamos en SLIOR?**  
-Para que la app funcione **sin conexión a internet** (offline-first). Cuando el repartidor no tiene cobertura, los datos se guardan en Room. Cuando recupera conexión, WorkManager sincroniza con el servidor.
+Para que la app funcione **sin conexión a internet** (offline-first). 
+Cuando el repartidor no tiene cobertura, los datos se guardan en Room. Cuando recupera conexión, WorkManager sincroniza con el servidor.
 
 **¿Qué componentes tiene?**  
 - **@Entity**: clase Kotlin que se convierte en tabla SQLite
@@ -206,7 +217,8 @@ Para que la app funcione **sin conexión a internet** (offline-first). Cuando el
 ### Retrofit 2.9.0
 
 **¿Qué es?**  
-Retrofit convierte nuestra API REST en una interfaz Kotlin. En lugar de escribir manualmente el código HTTP, defines la interfaz con anotaciones y Retrofit genera el código real.
+Retrofit convierte nuestra API REST en una interfaz Kotlin. 
+En lugar de escribir manualmente el código HTTP, defines la interfaz con anotaciones y Retrofit genera el código real.
 
 **Ejemplo:**
 ```kotlin
@@ -223,7 +235,8 @@ OkHttp es la capa de bajo nivel (la que realmente hace las peticiones HTTP). Ret
 ### Hilt 2.51.1
 
 **¿Qué es la Inyección de Dependencias?**  
-En lugar de que cada clase cree sus propias dependencias (`val repo = AuthRepository()`), un framework externo se las proporciona automáticamente. Esto hace el código más testeable y flexible.
+En lugar de que cada clase cree sus propias dependencias (`val repo = AuthRepository()`), un framework externo se las proporciona automáticamente. 
+Esto hace el código más testeable y flexible.
 
 **¿Qué es Hilt?**  
 Hilt es la solución oficial de Google para inyección de dependencias en Android. Está construido sobre Dagger (que es más potente pero muy complejo de configurar).
@@ -258,17 +271,21 @@ updateUI(response)
 ```
 
 **¿Qué es Flow?**  
-Flow es como una "tubería" de datos que emite valores a lo largo del tiempo. Lo usamos para observar la base de datos Room: cuando un dato cambia en Room, el Flow notifica automáticamente a la UI para que se actualice.
+Flow es como una "tubería" de datos que emite valores a lo largo del tiempo. 
+Lo usamos para observar la base de datos Room: cuando un dato cambia en Room, 
+el Flow notifica automáticamente a la UI para que se actualice.
 
 ---
 
 ### KSP (Kotlin Symbol Processing)
 
 **¿Qué es?**  
-KSP es la herramienta que usa Kotlin para generar código en tiempo de compilación. Lo usan Room (genera el código SQL), Hilt (genera las inyecciones) y otras librerías.
+KSP es la herramienta que usa Kotlin para generar código en tiempo de compilación. 
+Lo usan Room (genera el código SQL), Hilt (genera las inyecciones) y otras librerías.
 
 **¿Por qué KSP en vez de kapt?**  
-`kapt` era la herramienta anterior. `KSP` es hasta 2x más rápida y es compatible con las versiones modernas de Gradle (8.x). `kapt` tiene problemas de compatibilidad con Gradle 8.3+ (que fue exactamente el error que nos dio al principio).
+`kapt` era la herramienta anterior. `KSP` es hasta 2x más rápida y es compatible con las versiones modernas de Gradle (8.x). 
+`kapt` tiene problemas de compatibilidad con Gradle 8.3+ (que fue exactamente el error que nos dio al principio).
 
 ---
 
@@ -321,7 +338,8 @@ Para que el repartidor pueda escanear el código de barras de un paquete con la 
 
 ### ¿Por qué Offline-First?
 
-Los repartidores trabajan frecuentemente en zonas con mala cobertura (sótanos, polígonos industriales, zonas rurales). Si la app requiriese conexión constante, sería inútil en esas situaciones.
+Los repartidores trabajan frecuentemente en zonas con mala cobertura (sótanos, polígonos industriales, zonas rurales). 
+Si la app requiriese conexión constante, sería inútil en esas situaciones.
 
 Con Offline-First:
 1. La app siempre lee de Room (base de datos local) → siempre funciona

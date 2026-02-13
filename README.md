@@ -159,6 +159,17 @@ cd mobile-app
 
 ---
 
+## Documentación del Proyecto
+
+| Documento | Descripción |
+|-----------|-------------|
+| [`docs/diario_desarrollo.md`](docs/diario_desarrollo.md) | Registro cronológico de cada paso del desarrollo (decisiones, comandos, resultados) |
+| [`docs/tecnologias_explicacion_personal.md`](docs/tecnologias_explicacion_personal.md) | Explicación informal de todas las tecnologías usadas |
+| [`docs/tecnologias_documento_tfg.md`](docs/tecnologias_documento_tfg.md) | Justificación técnica formal para la memoria del TFG |
+| [`docs/errores_y_soluciones.md`](docs/errores_y_soluciones.md) | Registro de todos los errores encontrados y sus soluciones |
+
+---
+
 ## Licencia
 
 MIT © 2026 José Ramos Contioso
