@@ -5,8 +5,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -20,7 +20,7 @@ android {
         versionCode = 1
         versionName = "1.0.0"
 
-        testInstrumentationRunner = "com.slior.HiltTestRunner"
+    testInstrumentationRunner = "com.slior.HiltTestRunner"
     }
 
     buildTypes {
@@ -68,8 +68,8 @@ dependencies {
 
     // ======= Room Database (persistencia local offline-first) =======
     implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")         // Soporte Coroutines
-    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
 
     // ======= Retrofit + OkHttp (cliente HTTP) =======
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -78,8 +78,8 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // ======= Hilt (inyección de dependencias) =======
-    implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-compiler:2.48")
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    ksp("com.google.dagger:hilt-compiler:2.51.1")
 
     // ======= Coroutines =======
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
@@ -90,8 +90,8 @@ dependencies {
 
     // ======= WorkManager (sincronización en background) =======
     implementation("androidx.work:work-runtime-ktx:2.9.0")
-    implementation("androidx.hilt:hilt-work:1.1.0")
-    kapt("androidx.hilt:hilt-compiler:1.1.0")
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
 
     // ======= Mapas: OSMDroid (OpenStreetMap, sin clave API) =======
     implementation("org.osmdroid:osmdroid-android:6.1.17")
@@ -114,12 +114,7 @@ dependencies {
 
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.48")
-    kaptAndroidTest("com.google.dagger:hilt-compiler:2.48")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.51.1")
+    ksp("com.google.dagger:hilt-compiler:2.51.1")
     androidTestImplementation("androidx.room:room-testing:2.6.1")
-}
-
-// Hilt requiere kapt para generar código en tiempo de compilación
-kapt {
-    correctErrorTypes = true
 }
