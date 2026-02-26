@@ -19,7 +19,7 @@
 
     <!-- ======= Estados de rutas ======= -->
     <color name="status_planned">#90CAF9</color>     <!-- Azul claro — PLANIFICADA -->
-    <color name="status_in_progress">#FFF176</color"> <!-- Amarillo — EN_CURSO -->
+    <color name="status_in_progress">#FFF176</color>  <!-- Amarillo — EN_CURSO -->
     <color name="status_completed">#A5D6A7</color>   <!-- Verde — COMPLETADA -->
     <color name="status_cancelled">#EF9A9A</color>   <!-- Rojo — CANCELADA -->
 
