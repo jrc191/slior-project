@@ -162,6 +162,60 @@ Es la versión estable más reciente de Kotlin. Incluye el nuevo compilador K2, 
 
 ---
 
+### Jetpack Compose
+
+**¿Qué es?**  
+Jetpack Compose es la forma moderna de construir interfaces de usuario en Android. En lugar de diseñar pantallas con archivos XML (la forma "clásica"), con Compose escribes la UI directamente en Kotlin con funciones especiales llamadas `@Composable`.
+
+**¿Cómo funciona?**  
+Describes *qué* quieres mostrar, no *cómo* dibujarlo. Compose se encarga del resto:
+```kotlin
+@Composable
+fun LoginScreen() {
+    Column {
+        Text("SLIOR")
+        TextField(value = email, onValueChange = { email = it })
+        Button(onClick = { viewModel.login(email, password) }) {
+            Text("Entrar")
+        }
+    }
+}
+```
+
+**¿Por qué Compose en vez de XML?**  
+- El código XML y el Kotlin estaban en archivos separados, obligando a sincronizarlos manualmente (ViewBinding, `findViewById`...). Con Compose todo está en Kotlin.
+- Con XML, un cambio de estado requería actualizar la UI manualmente. Con Compose, la UI se redibuja sola cuando cambian los datos.
+- Es el estándar actual que Google recomienda para todo proyecto Android nuevo.
+- Lo usaste en FotApp y ya tienes experiencia con ello.
+
+**¿Qué relación tiene con tu FotApp?**  
+En FotApp usabas Compose con `mutableStateOf` directamente en los composables (estado local). En SLIOR mantenemos esa forma de construir la UI, pero el estado lo gestiona el `ViewModel` con `StateFlow`. La UI en Compose observa ese StateFlow y se actualiza sola. Es lo mismo que hacías, pero con mejor separación de responsabilidades.
+
+**¿Qué es el Compose BOM?**  
+BOM significa *Bill of Materials* (lista de materiales). Es un fichero que define versiones compatibles entre sí de todas las librerías de Compose. En vez de buscar manualmente qué versión de `compose.ui` funciona con `compose.material3`, el BOM lo gestiona todo.
+
+---
+
+### Navigation Compose
+
+**¿Qué es?**  
+Es la librería oficial para navegar entre pantallas en Compose. Define rutas (como URLs) y un `NavHost` que muestra la pantalla correspondiente.
+
+**¿Cómo lo usabas en FotApp?**
+```kotlin
+NavHost(navController, startDestination = "player_list") {
+    composable("player_list") { PlayerListScreen() }
+    composable("player_detail/{playerName}") { ... }
+}
+```
+
+**En SLIOR es igual**, pero con pantallas de negocio: login, mapa de rutas, detalle de paquete, etc.
+
+**¿Por qué esto en vez de startActivity?**  
+`startActivity` lanza una `Activity` completa, que tiene más peso y overhead. Navigation Compose mantiene todo dentro de una sola Activity y cambia solo el contenido, lo cual es más eficiente y moderno.
+
+---
+
 ### Android SDK API 24 (Android 7.0 Nougat)
 
 **¿Qué significa minSdk = 24?**  
@@ -358,3 +412,35 @@ Las entidades JPA/Room son el "mapa interno" de la base de datos. Los DTOs son e
 - Sería difícil versionar la API
 
 Con DTOs separados, podemos evolucionar la BD y la API de forma independiente.
+
+---
+
+##  REFERENCIA: PROYECTO FOTAPP
+
+Durante la Fase 1 Android, se analizó el proyecto anterior del alumno, **FotApp (FutConnect)**, disponible en [GitHub](https://github.com/jrc191/FotApp/tree/feature/GUI), para adaptar el estilo de desarrollo Android conocido al proyecto SLIOR.
+
+### ¿Qué aprendimos de FotApp?
+
+FotApp es una app de información sobre jugadores de fútbol construida íntegramente con **Jetpack Compose** y **Material 3**. Fue el punto de referencia para decidir usar Compose en SLIOR en lugar de XML.
+
+**Lo que tomamos de FotApp:**
+- La forma de estructurar pantallas como funciones `@Composable`
+- El uso de `NavHost` con rutas en string para navegar entre pantallas
+- El enfoque de una sola `Activity` principal
+- El patrón de componentes reutilizables (en FotApp: `FutButtonComp`, `PlayerCard`...; en SLIOR haremos lo mismo)
+- El uso de Material 3 para el diseño visual
+
+**Lo que mejoró SLIOR respecto a FotApp:**
+
+| Aspecto | FotApp | SLIOR |
+|---------|--------|-------|
+| Estado de la UI | `mutableStateOf` directo en Composables | `StateFlow` en `ViewModel` |
+| Gestión de datos | Datos hardcodeados en `Datasource.kt` | Room + Retrofit (datos reales del servidor) |
+| Inyección de dependencias | Sin DI (objetos creados manualmente) | Hilt (inyección automática y testeable) |
+| Comunicación con backend | Sin backend (Retrofit declarado, sin usar) | Retrofit con autenticación JWT |
+| Persistencia | Solo en memoria (`rememberSaveable`) | Room SQLite + DataStore |
+| Trabajo en segundo plano | Ninguno | WorkManager para sincronización offline |
+| Arquitectura | Sin capas definidas | MVVM + Clean Architecture |
+
+**¿Por qué mantener el estilo Compose de FotApp en SLIOR?**  
+El alumno ya tiene experiencia con Jetpack Compose. Adaptarse a XML hubiera supuesto aprender una tecnología más antigua y con menos futuro. Compose es el estándar actual de Android y permite al alumno aplicar conocimientos previos mientras incorpora patrones de arquitectura profesionales nuevos (ViewModel, Hilt, Room, Retrofit).

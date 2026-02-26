@@ -134,7 +134,7 @@ El proyecto Android sigue la arquitectura recomendada por Google para aplicacion
 ```
 
   Capa de Presentación               
-  Activities · Fragments · XML       
+  Composables (Jetpack Compose)      
   Observa StateFlow del ViewModel    
 
   Capa de ViewModel                  
@@ -156,7 +156,50 @@ El proyecto Android sigue la arquitectura recomendada por Google para aplicacion
 - Cada capa es testeable de forma independiente
 - Los cambios en una capa no afectan a las demás
 
-### 3.4 Persistencia local: Room 2.6.1
+### 3.4 Interfaz de usuario: Jetpack Compose
+
+Jetpack Compose es el toolkit de UI declarativo oficial de Android, introducido de forma estable en 2021 y recomendado por Google para todo nuevo desarrollo Android desde 2022.
+
+**Fundamento del paradigma declarativo:**  
+En el enfoque clásico (XML + ViewBinding), el desarrollador describe *cómo* construir la UI y *cómo* actualizarla cuando cambian los datos (manipulación imperativa del árbol de vistas). En Compose, el desarrollador describe *qué* mostrar en función del estado actual, y el framework gestiona automáticamente las actualizaciones del árbol de UI (*recomposición*).
+
+**Componentes de Compose utilizados en SLIOR:**
+
+| Componente | Función |
+|------------|---------|
+| `@Composable` | Anotación que marca una función como elemento de UI |
+| `remember` / `rememberSaveable` | Estado local que sobrevive a recomposiciones |
+| `collectAsState()` | Observa un `StateFlow` del ViewModel en Compose |
+| `MaterialTheme` | Sistema de diseño Material 3 |
+| `Scaffold` | Estructura base con TopBar, BottomBar, FAB |
+| `LazyColumn` / `LazyRow` | Listas virtualizadas (equivalente a RecyclerView) |
+
+**Compose BOM (Bill of Materials):**  
+El BOM es un artefacto Maven que gestiona las versiones de todas las librerías de Compose, garantizando compatibilidad entre ellas. La versión `2024.09.03` se eligió por ser la más reciente y estable en el inicio del proyecto.
+
+**Justificación de Compose frente a XML:**
+- Elimina la sincronización manual entre XML y Kotlin (ViewBinding, `findViewById`)
+- El estado de la UI fluye unidireccionalmente desde el ViewModel
+- Compilación incremental más rápida en proyectos grandes
+- Es el estándar oficial para nuevos proyectos Android
+- El alumno tiene experiencia previa con Compose (proyecto FotApp)
+
+**Influencia del proyecto FotApp:**  
+Durante el desarrollo, se analizó el proyecto previo del alumno (*FotApp*, disponible en GitHub) para alinear el estilo de desarrollo Android. FotApp utiliza Compose, Material 3 y Navigation Compose, tecnologías adoptadas igualmente en SLIOR. Sin embargo, SLIOR incorpora patrones de arquitectura adicionales ausentes en FotApp: ViewModel con StateFlow, Hilt, Room y Retrofit. Véase la sección 6 para el análisis comparativo detallado.
+
+### 3.5 Navegación: Navigation Compose
+
+Navigation Compose es la extensión de Jetpack Navigation para aplicaciones Compose. Implementa la navegación mediante un `NavHost` que asocia rutas (identificadores de tipo string) con funciones Composable.
+
+**Patrón Single-Activity:**  
+SLIOR sigue la arquitectura *Single-Activity*, donde toda la navegación ocurre dentro de una única `Activity` principal (`MainActivity`). Cada pantalla es un Composable registrado como destino de navegación. Este patrón es el recomendado por Google para aplicaciones Compose.
+
+**Ventajas frente a múltiples Activities:**
+- Menor overhead de sistema (las Activities son componentes pesados del sistema Android)
+- Paso de datos entre pantallas mediante argumentos de ruta, sin necesidad de `Intent` con `Bundle`
+- Gestión del back stack unificada y predecible
+
+### 3.6 Persistencia local: Room 2.6.1
 
 Room es la librería oficial de Android para bases de datos SQLite. Proporciona una capa de abstracción sobre SQLite que verifica las consultas SQL en tiempo de compilación.
 
@@ -169,7 +212,7 @@ Room es la librería oficial de Android para bases de datos SQLite. Proporciona 
 **Rol en la arquitectura offline-first:**
 Room es la **única fuente de verdad** de la aplicación. La UI siempre lee datos de Room. Retrofit solo se usa para sincronizar Room con el servidor, nunca para alimentar la UI directamente.
 
-### 3.5 Cliente HTTP: Retrofit 2.9.0 + OkHttp 4.12
+### 3.7 Cliente HTTP: Retrofit 2.9.0 + OkHttp 4.12
 
 **Retrofit** es una librería que convierte la API REST en una interfaz Kotlin mediante anotaciones, generando automáticamente el código HTTP necesario.
 
@@ -177,7 +220,7 @@ Room es la **única fuente de verdad** de la aplicación. La UI siempre lee dato
 
 **Justificación:** Retrofit es el cliente HTTP estándar de facto en Android, con amplia adopción, soporte de Coroutines, y conversores de JSON como Gson integrados.
 
-### 3.6 Inyección de dependencias: Hilt 2.51.1
+### 3.8 Inyección de dependencias: Hilt 2.51.1
 
 Hilt es la solución oficial de Google para inyección de dependencias en Android, construida sobre Dagger 2. Simplifica la configuración de Dagger mediante anotaciones predefinidas para cada componente Android.
 
@@ -190,7 +233,7 @@ Hilt es la solución oficial de Google para inyección de dependencias en Androi
 
 **Versión 2.51.1:** Necesaria para compatibilidad con KSP y Gradle 8.x.
 
-### 3.7 Asincronía: Kotlin Coroutines + Flow
+### 3.9 Asincronía: Kotlin Coroutines + Flow
 
 **Coroutines** son una característica del lenguaje Kotlin que permite escribir código asíncrono de forma secuencial y legible, sin bloquear el hilo principal de Android (UI thread).
 
@@ -200,7 +243,7 @@ Hilt es la solución oficial de Google para inyección de dependencias en Androi
 - vs. callbacks: el código es lineal y fácil de seguir
 - vs. RxJava: menos verbosidad, integración nativa en Kotlin, mejor rendimiento
 
-### 3.8 Procesamiento de anotaciones: KSP (Kotlin Symbol Processing)
+### 3.10 Procesamiento de anotaciones: KSP (Kotlin Symbol Processing)
 
 KSP es el procesador de anotaciones de nueva generación para Kotlin, desarrollado por Google. Reemplaza a `kapt` (Kotlin Annotation Processing Tool).
 
@@ -214,7 +257,7 @@ KSP es el procesador de anotaciones de nueva generación para Kotlin, desarrolla
 
 La migración de `kapt` a KSP fue necesaria debido a incompatibilidades con Gradle 8.13, la versión utilizada por Android Studio 2025.1.3 (Meerkat).
 
-### 3.9 Almacenamiento de preferencias: DataStore
+### 3.11 Almacenamiento de preferencias: DataStore
 
 DataStore es la solución moderna de Android para almacenar datos clave-valor de forma persistente. Reemplaza a SharedPreferences.
 
@@ -222,7 +265,7 @@ DataStore es la solución moderna de Android para almacenar datos clave-valor de
 
 **Ventaja frente a SharedPreferences:** DataStore opera de forma asíncrona con Coroutines, evitando bloqueos en el hilo principal que podrían causar errores de rendimiento (ANR).
 
-### 3.10 Tareas en segundo plano: WorkManager
+### 3.12 Tareas en segundo plano: WorkManager
 
 WorkManager es la librería recomendada por Google para tareas en background que deben ejecutarse de forma garantizada, incluso si la aplicación se cierra o el dispositivo se reinicia.
 
@@ -234,7 +277,7 @@ WorkManager es la librería recomendada por Google para tareas en background que
 3. Simultáneamente, se registra una tarea en WorkManager con la restricción `NetworkType.CONNECTED`
 4. Cuando hay conexión, WorkManager ejecuta `SyncWorker`, que envía los cambios pendientes al servidor
 
-### 3.11 Mapas: OSMDroid 6.1.17
+### 3.13 Mapas: OSMDroid 6.1.17
 
 OSMDroid es la librería Android oficial para la visualización de mapas basados en OpenStreetMap (OSM), el proyecto cartográfico colaborativo de código abierto.
 
@@ -248,7 +291,7 @@ OSMDroid es la librería Android oficial para la visualización de mapas basados
 | Dependencia externa | Ninguna | Cuenta Google Cloud |
 | Adecuación académica | Alta | Requiere configuración de pagos |
 
-### 3.12 Escaneo de códigos: ZXing 4.3.0
+### 3.14 Escaneo de códigos: ZXing 4.3.0
 
 ZXing (*Zebra Crossing*) es la librería de código abierto más extendida para la lectura de códigos de barras y QR mediante la cámara del dispositivo.
 
@@ -302,8 +345,65 @@ El desarrollo del proyecto ha sido asistido por GitHub Copilot CLI, una herramie
 | KSP | 2.0.21-1.0.28 | Android |
 | DataStore | 1.0.0 | Android |
 | WorkManager | 2.9.0 | Android |
+| Jetpack Compose BOM | 2024.09.03 | Android |
+| Navigation Compose | 2.8.2 | Android |
 | OSMDroid | 6.1.17 | Android |
 | ZXing | 4.3.0 | Android |
 | AGP | 8.9.0 | Android |
 | Gradle | 8.13 | Android |
 | Git | - | Ambos |
+
+---
+
+## 6. Análisis Comparativo: FotApp vs. SLIOR
+
+Durante la fase de desarrollo Android, se analizó el proyecto previo del alumno, **FotApp (FutConnect)** (rama `feature/GUI`, disponible en GitHub), como referencia para el estilo de desarrollo Android. Este análisis motivó la adopción de Jetpack Compose en SLIOR y permitió identificar las mejoras arquitectónicas necesarias para un sistema de mayor complejidad.
+
+### 6.1 Descripción de FotApp
+
+FotApp es una aplicación de consulta de información sobre jugadores de fútbol, desarrollada como práctica anterior por el alumno. La aplicación presenta:
+
+- Interfaz construida íntegramente con **Jetpack Compose** y **Material 3**
+- Navegación mediante **Navigation Compose** con `NavHost`
+- Diseño responsivo con variantes para pantallas compactas y expandidas (tablets)
+- Gestión de datos mediante un objeto singleton (`Datasource`) con datos estáticos
+
+### 6.2 Tabla Comparativa
+
+| Aspecto Arquitectónico | FotApp | SLIOR |
+|------------------------|--------|-------|
+| **Framework UI** | Jetpack Compose | Jetpack Compose |
+| **Sistema de diseño** | Material 3 | Material 3 |
+| **Navegación** | Navigation Compose | Navigation Compose |
+| **Patrón de pantallas** | Single-Activity | Single-Activity |
+| **Gestión de estado UI** | `mutableStateOf` en Composables | `StateFlow` en ViewModel |
+| **Capa de presentación** | Sin separación (estado en UI) | ViewModel con `@HiltViewModel` |
+| **Origen de datos** | Datos estáticos (`Datasource.kt`) | Room + Retrofit (datos reales) |
+| **Persistencia** | En memoria (`rememberSaveable`) | Room SQLite + DataStore |
+| **Inyección de dependencias** | Ninguna | Hilt 2.51.1 |
+| **Comunicación con backend** | Sin backend | API REST con JWT |
+| **Trabajo en background** | Ninguno | WorkManager |
+| **Manejo de errores** | Sin gestión formal | `sealed class Result<T>` |
+| **Arquitectura formal** | Sin capas definidas | MVVM + Clean Architecture |
+
+### 6.3 Decisión de Adopción de Compose
+
+La decisión de emplear Jetpack Compose en SLIOR, en lugar del enfoque clásico basado en XML, se sustentó en los siguientes argumentos:
+
+1. **Experiencia previa del alumno**: El alumno domina Compose por su uso en FotApp, lo que permite centrarse en los aspectos arquitectónicos avanzados sin la curva de aprendizaje de una nueva tecnología de UI.
+
+2. **Alineación con las recomendaciones de Google**: Compose es el toolkit de UI recomendado oficialmente para nuevos proyectos Android desde 2022.
+
+3. **Coherencia con el paradigma reactivo**: El flujo unidireccional de datos (`StateFlow` → `collectAsState()` → Composable) es más natural en Compose que en el sistema View clásico.
+
+4. **Productividad**: La eliminación de XML y ViewBinding simplifica el código de la capa de presentación.
+
+### 6.4 Mejoras Introducidas Respecto a FotApp
+
+Las principales mejoras arquitectónicas introducidas en SLIOR respecto al modelo de FotApp son:
+
+- **Separación de responsabilidades**: el estado deja de residir en los Composables y se traslada al `ViewModel`, que es la única clase que puede modificarlo.
+- **Testabilidad**: la arquitectura MVVM con Hilt permite sustituir dependencias reales por mocks en los tests unitarios.
+- **Persistencia real**: Room proporciona una base de datos SQLite local completa, frente al almacenamiento en memoria de FotApp.
+- **Comunicación con servidor**: Retrofit con autenticación JWT conecta la aplicación a un backend real, frente a la ausencia de backend en FotApp.
+- **Capacidad offline**: WorkManager y Room combinados permiten operar sin conexión y sincronizar datos automáticamente.

@@ -355,3 +355,110 @@ Hash: 3b9f887
 ---
 
 *Próxima fase: [FASE 2 — Gestión de Rutas Backend](../README.md#fases-de-desarrollo)*
+
+---
+
+## FASE 1: Autenticación y Fundamentos — Android
+
+**Fecha:** 09/03/2026
+**Estado:**  En progreso
+
+---
+
+### 1.A Migración a Jetpack Compose
+
+Antes de crear los archivos de UI, se realizó un análisis del proyecto anterior del alumno (**FotApp**, disponible en GitHub, rama `feature/GUI`) para alinear el estilo de desarrollo Android con su experiencia previa.
+
+**Hallazgo principal:** FotApp está construida íntegramente con Jetpack Compose y Material 3, no con XML. Se decidió adoptar el mismo enfoque en SLIOR, sustituyendo los layouts XML por funciones `@Composable`.
+
+**Cambios en `build.gradle.kts` (raíz):**
+- Añadido plugin: `id("org.jetbrains.kotlin.plugin.compose") version "2.0.21" apply false`
+  - Este plugin es necesario desde Kotlin 2.0 para habilitar el compilador de Compose (ya no se necesita `kotlinCompilerExtensionVersion` separado)
+
+**Cambios en `app/build.gradle.kts`:**
+- Añadido plugin: `id("org.jetbrains.kotlin.plugin.compose")`
+- `buildFeatures { viewBinding = true }` → `buildFeatures { compose = true }`
+- Eliminadas: `constraintlayout`, `fragment-ktx`, `livedata-ktx`, `activity-ktx` (no necesarias en Compose)
+- Añadidas:
+  - `androidx.activity:activity-compose:1.9.2` — integración Activity/Compose
+  - `platform("androidx.compose:compose-bom:2024.09.03")` — gestión centralizada de versiones Compose
+  - `androidx.compose.ui:ui` — núcleo de Compose
+  - `androidx.compose.material3:material3` — componentes Material 3
+  - `androidx.compose.material:material-icons-extended` — iconos adicionales
+  - `androidx.navigation:navigation-compose:2.8.2` — navegación entre pantallas
+  - `androidx.hilt:hilt-navigation-compose:1.2.0` — integración Hilt + Navigation
+  - `androidx.lifecycle:lifecycle-runtime-compose:2.8.6` — `collectAsStateWithLifecycle`
+
+**¿Por qué Compose BOM 2024.09.03?**  
+Es la versión estable más reciente compatible con Kotlin 2.0.21 y AGP 8.9.0 en el momento del inicio del proyecto.
+
+---
+
+### 1.B Archivos Android creados (Fase 1)
+
+#### Capa de datos local (Room)
+
+| Archivo | Paquete | Descripción |
+|---------|---------|-------------|
+| `UserEntity.kt` | `data/local/entity` | Entidad Room: usuario con UUID, syncStatus, timestamps |
+| `UserDao.kt` | `data/local/dao` | Consultas Room: insert, getUserById (Flow), deleteAll |
+| `AppDatabase.kt` | `data/local` | Clase @Database: une entidades y DAOs, singleton con `getInstance` |
+| `DatabaseModule.kt` | `di` | Módulo Hilt que provee AppDatabase y UserDao |
+
+**Decisión: `syncStatus` en las entidades Room**  
+Cada entidad tiene un campo `syncStatus` (PENDING / SYNCED) que indica si el dato ha sido enviado al servidor. WorkManager lee los registros PENDING y los sincroniza cuando hay red.
+
+#### Capa de datos remota (Retrofit)
+
+| Archivo | Paquete | Descripción |
+|---------|---------|-------------|
+| `LoginRequest.kt` | `data/remote/dto` | DTO de petición login |
+| `RegisterRequest.kt` | `data/remote/dto` | DTO de petición registro |
+| `AuthResponse.kt` | `data/remote/dto` | DTO de respuesta (token JWT + datos usuario) |
+| `ApiService.kt` | `data/remote` | Interfaz Retrofit con endpoints `/auth/login` y `/auth/register` |
+| `AuthInterceptor.kt` | `data/remote` | OkHttp Interceptor: añade `Authorization: Bearer {token}` a cada petición. Define `Context.dataStore` y `TOKEN_KEY` |
+
+**Decisión: `AuthInterceptor` define `Context.dataStore`**  
+La extension property `Context.dataStore` debe declararse una sola vez en todo el proyecto. Se colocó en `AuthInterceptor.kt` porque es la primera clase que necesita acceder al DataStore. El resto de clases la importan desde aquí.
+
+#### Módulos Hilt
+
+| Archivo | Paquete | Descripción |
+|---------|---------|-------------|
+| `NetworkModule.kt` | `di` | Provee OkHttpClient (con AuthInterceptor + logging), Retrofit, ApiService |
+| `DatabaseModule.kt` | `di` | Provee AppDatabase y UserDao |
+
+**URL base del emulador Android:**  
+`http://10.0.2.2:8080/` — La IP `10.0.2.2` es la redirección especial del emulador Android para acceder al `localhost` del PC de desarrollo.
+
+#### Utilidades y lógica de dominio
+
+| Archivo | Paquete | Descripción |
+|---------|---------|-------------|
+| `Result.kt` | `util` | Sealed class: `Success<T>`, `Error(Exception)`, `Loading` |
+| `AuthRepository.kt` | `data/repository` | login/register → llama a Retrofit, guarda en Room y DataStore |
+| `LoginState.kt` | `ui/auth` | Sealed interface: `Idle`, `Loading`, `Success`, `Error(String)` |
+| `AuthViewModel.kt` | `viewmodel` | @HiltViewModel. Expone `StateFlow<LoginState>`. Métodos: login, register, resetState |
+
+**Decisión: `Result<T>` vs `LoginState`**  
+Se usan dos tipos diferentes con propósitos distintos:
+- `Result<T>`: lo usa el repositorio para indicar éxito/error de una operación de datos (capa de datos)
+- `LoginState`: lo usa el ViewModel para comunicar el estado actual de la pantalla a la UI (capa de presentación)
+
+Esta separación evita que la UI tenga que entender detalles de la capa de datos.
+
+---
+
+### 1.C Análisis FotApp → SLIOR
+
+Comparativa entre la arquitectura de FotApp (proyecto previo del alumno) y las mejoras introducidas en SLIOR:
+
+| Aspecto | FotApp | SLIOR (mejora) |
+|---------|--------|----------------|
+| UI | Compose  | Compose  (mantenido) |
+| Estado | `mutableStateOf` en Composables | `StateFlow` en ViewModel |
+| Datos | Hardcodeados en `Datasource` | Room + Retrofit |
+| DI | Sin DI | Hilt |
+| Backend | Sin backend | API REST JWT |
+| Offline | Sin soporte | Room + WorkManager |
+| Errores | Sin gestión | `sealed class Result<T>` |

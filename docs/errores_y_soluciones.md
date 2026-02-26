@@ -2,7 +2,6 @@
 
 > Documento actualizado a lo largo de todo el proyecto.
 > Cada error encontrado queda registrado con su causa exacta y la solución aplicada.
-> Útil para la memoria del TFG y para futuros desarrollos similares.
 
 ---
 
@@ -19,7 +18,7 @@
 **Fecha:** 09/03/2026  
 **Fase:** Fase 0 — Inicialización  
 **Componente:** Proyecto Android (Gradle)  
-**Severidad:**  Bloqueante (el proyecto no podía sincronizar)
+**Severidad:**  Bloqueo (el proyecto no podía sincronizar)
 
 ### Mensaje de error
 
@@ -35,9 +34,11 @@ A problem occurred configuring project ':app'.
 
 El proyecto Android fue configurado inicialmente con el plugin `kotlin-kapt` (Kotlin Annotation Processing Tool) para que librerías como Room y Hilt pudieran generar código en tiempo de compilación.
 
-El problema es que `kapt` llama internamente al método `Configuration.fileCollection(Spec)` de la API de Gradle. Este método fue marcado como deprecated en Gradle 7.x y **eliminado definitivamente en Gradle 8.3**.
+El problema es que `kapt` llama internamente al método `Configuration.fileCollection(Spec)` de la API de Gradle. 
+Este método fue marcado como deprecated en Gradle 7.x y **eliminado definitivamente en Gradle 8.3**.
 
-Android Studio 2025.1.3 (Meerkat) utiliza Gradle 8.13 como versión predeterminada, muy por encima del umbral donde `kapt` deja de funcionar. Por tanto, en el momento de sincronizar el proyecto por primera vez, Gradle intentó ejecutar código que ya no existe en su API y lanzó el error.
+Android Studio 2025.1.3 (Meerkat) utiliza Gradle 8.13 como versión predeterminada, muy por encima del umbral donde `kapt` deja de funcionar. 
+Por tanto, en el momento de sincronizar el proyecto por primera vez, Gradle intentó ejecutar código que ya no existe en su API y lanzó el error.
 
 ### Diagrama de la causa
 
@@ -99,7 +100,8 @@ Se añadió también `gradle/wrapper/gradle-wrapper.properties` para fijar expl�
 
 ### Lección aprendida
 
-Al iniciar un proyecto Android nuevo con versiones recientes de Android Studio (2024+), usar siempre **KSP** en lugar de `kapt`. Verificar que las versiones del plugin KSP y Kotlin coincidan (misma versión base, ej. `2.0.21-1.0.28` para Kotlin `2.0.21`).
+Al iniciar un proyecto Android nuevo con versiones recientes de Android Studio (2024+), usar siempre **KSP** en lugar de `kapt`. 
+Verificar que las versiones del plugin KSP y Kotlin coincidan (misma versión base, ej. `2.0.21-1.0.28` para Kotlin `2.0.21`).
 
 ---
 
